@@ -25,8 +25,8 @@ ADC General Macros
 
 static int adc_raw;
 static int voltage;
-static float m = 0.774114;      // Bits to mV slope (mV/bit)
-static float b = 1.5;           // Bits to mV offset (mV)
+// static float m = 0.774114;      // Bits to mV slope (mV/bit)
+// static float b = 1.5;           // Bits to mV offset (mV)
 
 // Function prototype
 static bool example_adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t atten, adc_cali_handle_t *out_handle);
@@ -35,31 +35,34 @@ void app_main(void)
 {
     //-------------ADC1 Init---------------//
     adc_oneshot_unit_handle_t adc1_handle;
+
     adc_oneshot_unit_init_cfg_t init_config1 = {
         .unit_id = ADC_UNIT_1,
     };
-    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &adc1_handle));
+    
+    adc_oneshot_new_unit(&init_config1, &adc1_handle);
     
     //-------------ADC1 Config---------------//
     adc_oneshot_chan_cfg_t config = {
         .atten = EXAMPLE_ADC_ATTEN,
-        // .bitwidth = ADC_BITWIDTH_DEFAULT,
         .bitwidth = ADC_BITWIDTH_12,
     };
-    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, EXAMPLE_ADC1_CHAN, &config));
+    
+    adc_oneshot_config_channel(adc1_handle, EXAMPLE_ADC1_CHAN, &config);
     
     //-------------ADC1 Calibration Init---------------//
     adc_cali_handle_t adc1_cali_chan_handle = NULL;
-    bool do_calibration1_chan = example_adc_calibration_init(ADC_UNIT_1, EXAMPLE_ADC1_CHAN, EXAMPLE_ADC_ATTEN, &adc1_cali_chan_handle);
+    // bool do_calibration1_chan = example_adc_calibration_init(ADC_UNIT_1, EXAMPLE_ADC1_CHAN, EXAMPLE_ADC_ATTEN, &adc1_cali_chan_handle);
+    example_adc_calibration_init(ADC_UNIT_1, EXAMPLE_ADC1_CHAN, EXAMPLE_ADC_ATTEN, &adc1_cali_chan_handle);
     
     //-------------Loop forever-------------//
     while (1) {
-        ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, EXAMPLE_ADC1_CHAN, &adc_raw));
-        // voltage = (int)(m*(float)adc_raw + b);
-        if (do_calibration1_chan) {
-            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_chan_handle, adc_raw, &voltage));
-            ESP_LOGI(TAG, "ADC%d Channel[%d] Raw Data: %d  Voltage: %d mV", ADC_UNIT_1 + 1, EXAMPLE_ADC1_CHAN, adc_raw, voltage);
-        }
+        adc_oneshot_read(adc1_handle, EXAMPLE_ADC1_CHAN, &adc_raw);
+        
+        adc_cali_raw_to_voltage(adc1_cali_chan_handle, adc_raw, &voltage);
+        
+        printf("ADC%d Channel[%d] Raw Data: %d  Voltage: %d mV\n", ADC_UNIT_1 + 1, EXAMPLE_ADC1_CHAN, adc_raw, voltage);
+        
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
     
