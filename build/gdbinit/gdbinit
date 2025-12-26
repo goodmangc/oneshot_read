@@ -1,0 +1,2 @@
+source C:/ESP32/ESP32_Exercises/Analog_inputs_and_outputs/oneshot_read/build/gdbinit/symbols
+source C:/ESP32/ESP32_Exercises/Analog_inputs_and_outputs/oneshot_read/build/gdbinit/connect
